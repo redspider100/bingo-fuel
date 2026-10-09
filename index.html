@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bingo Fuel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+:root{--bg:#eef1f6;--card:#fff;--text:#14181f;--muted:#667085;--line:rgba(20,24,31,.1);--field:#f1f4f9;--ok:#16a34a;--bad:#e5484d;--c1:#2f7df6;--c2:#14b8a6;--c3:#f5a524;--c4:#8b7cf6}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0f17;--card:#141a25;--text:#f2f5fa;--muted:#8b95a7;--line:rgba(255,255,255,.1);--field:#1d2533;--ok:#34d27b;--bad:#ff6369}}
+:root[data-theme="dark"]{--bg:#0b0f17;--card:#141a25;--text:#f2f5fa;--muted:#8b95a7;--line:rgba(255,255,255,.1);--field:#1d2533;--ok:#34d27b;--bad:#ff6369}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
+.wrap{max-width:980px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-left,0px)) 32px max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;justify-content:space-between;align-items:center;padding:8px 4px 16px}
+h1{font-size:28px;letter-spacing:-.02em;margin:0;font-weight:700}
+.btns{display:flex;gap:8px}
+.chip{appearance:none;border:1px solid var(--line);background:var(--card);color:var(--text);font:inherit;font-size:14px;font-weight:600;padding:9px 14px;border-radius:999px;min-height:40px;cursor:pointer}
+.chip:active{transform:scale(.97)}
+.grid{display:grid;gap:16px}
+@media (min-width:760px){.grid{grid-template-columns:1fr 1fr;align-items:start}.res{order:2}.inp{order:1}}
+.card{background:var(--card);border-radius:24px;padding:20px;border:1px solid var(--line)}
+.res{display:grid;gap:18px}
+.status{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--ok)}
+[data-state="bad"] .dot{background:var(--bad)}
+.extra{font-size:64px;line-height:1;font-weight:700;letter-spacing:-.04em;font-variant-numeric:tabular-nums;color:var(--ok);margin:4px 0 2px}
+[data-state="bad"] .extra{color:var(--bad)}
+.sub{color:var(--muted);font-size:15px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat{background:var(--field);border-radius:16px;padding:14px}
+.stat b{display:block;font-size:26px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:13px}
+.bar{position:relative;height:18px;border-radius:9px;background:var(--field);overflow:visible;margin:22px 0 10px}
+.segs{display:flex;height:100%;border-radius:9px;overflow:hidden}
+.segs i{display:block;height:100%}
+.tick{position:absolute;top:-8px;bottom:-8px;width:3px;border-radius:2px;background:var(--text)}
+.tick em{position:absolute;top:-17px;left:50%;transform:translateX(-50%);font-style:normal;font-size:12px;font-weight:600;white-space:nowrap}
+.legend{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.legend li{display:flex;align-items:center;gap:10px;font-size:15px}
+.legend li i{width:12px;height:12px;border-radius:4px;flex:none}
+.legend li span{flex:1}
+.legend li b{font-variant-numeric:tabular-nums}
+.legend li.total{border-top:1px solid var(--line);padding-top:10px;margin-top:2px;font-weight:700}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fields label{display:block;font-size:14px;color:var(--muted);font-weight:500}
+.fields .full{grid-column:1/-1}
+.box{display:flex;align-items:center;margin-top:6px;background:var(--field);border-radius:14px;border:2px solid transparent;padding:0 14px}
+.box:focus-within{border-color:var(--c1)}
+.box input{flex:1;min-width:0;width:100%;background:none;border:0;outline:0;color:var(--text);font:inherit;font-size:22px;font-weight:600;padding:13px 0;font-variant-numeric:tabular-nums}
+.box small{color:var(--muted);font-size:13px;margin-left:6px}
+.note{color:var(--muted);font-size:12.5px;text-align:center;margin:18px 8px 0}
+</style>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="theme-color" content="#0b0f17">
+<meta name="apple-mobile-web-app-title" content="Bingo Fuel">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Bingo Fuel</h1>
+  <div class="btns">
+    <button class="chip" id="theme" type="button">Theme</button>
+    <button class="chip" id="reset" type="button">Reset</button>
+  </div>
+</header>
+<div class="grid">
+  <section class="card res" id="res" data-state="ok" aria-live="polite">
+    <div>
+      <div class="status"><span class="dot"></span><span id="status">Sufficient fuel</span></div>
+      <div class="extra" id="extra">0</div>
+      <div class="sub">lbs extra above bingo fuel</div>
+    </div>
+    <div class="pair">
+      <div class="stat"><b id="bingo">0</b><span>Bingo fuel (lbs)</span></div>
+      <div class="stat"><b id="mins">0</b><span>Minutes to bingo</span></div>
+    </div>
+    <div>
+      <div class="bar"><div class="segs" id="segs"></div><div class="tick" id="tick"><em>FOB</em></div></div>
+      <ul class="legend">
+        <li><i style="background:var(--c1)"></i><span>Trip burn</span><b id="l1">0</b></li>
+        <li><i style="background:var(--c2)"></i><span>Alternate</span><b id="l2">0</b></li>
+        <li><i style="background:var(--c3)"></i><span>Reserve</span><b id="l3">0</b></li>
+        <li><i style="background:var(--c4)"></i><span>Buffer</span><b id="l4">0</b></li>
+        <li class="total"><span>Bingo landing fuel</span><b id="land">0</b></li>
+      </ul>
+    </div>
+  </section>
+  <section class="card inp">
+    <div class="fields">
+      <div class="full"><label for="fob">Current fuel on board</label><div class="box"><input id="fob" inputmode="numeric" pattern="[0-9]*" autocomplete="off"><small>lbs</small></div></div>
+      <div class="full"><label for="trip">Trip burn to destination</label><div class="box"><input id="trip" inputmode="numeric" pattern="[0-9]*" autocomplete="off"><small>lbs</small></div></div>
+      <div><label for="alt">Alternate</label><div class="box"><input id="alt" inputmode="numeric" pattern="[0-9]*" autocomplete="off"><small>lbs</small></div></div>
+      <div><label for="res2">Reserve</label><div class="box"><input id="res2" inputmode="numeric" pattern="[0-9]*" autocomplete="off"><small>lbs</small></div></div>
+      <div><label for="buf">Buffer</label><div class="box"><input id="buf" inputmode="numeric" pattern="[0-9]*" autocomplete="off"><small>lbs</small></div></div>
+      <div><label for="hr">Hourly burn</label><div class="box"><input id="hr" inputmode="numeric" pattern="[0-9]*" autocomplete="off"><small>lbs/hr</small></div></div>
+    </div>
+  </section>
+</div>
+<p class="note">Training aid only. Always verify against your approved flight plan and company procedures.</p>
+</div>
+<script>
+(function(){
+var IDS=['fob','trip','alt','res2','buf','hr'];
+var DEF={fob:4600,trip:877,alt:1100,res2:1400,buf:400,hr:2400};
+var KEY='bingo-fuel-v1';
+var root=document.documentElement;
+function $(id){return document.getElementById(id)}
+function n(v){var x=parseFloat(v);return isFinite(x)?x:0}
+function fmt(x){return Math.round(x).toLocaleString('en-US')}
+function save(){try{var o={};IDS.forEach(function(i){o[i]=$(i).value});localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
+function load(){var o=null;try{o=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
+  IDS.forEach(function(i){$(i).value=(o&&o[i]!==undefined)?o[i]:DEF[i]})}
+function calc(){
+  var fob=n($('fob').value),trip=n($('trip').value),alt=n($('alt').value),res=n($('res2').value),buf=n($('buf').value),hr=n($('hr').value);
+  var land=alt+res+buf,bingo=trip+land,extra=fob-bingo;
+  var mins=hr>0?extra/(hr/60):null;
+  var bad=extra<0;
+  $('res').setAttribute('data-state',bad?'bad':'ok');
+  $('status').textContent=bad?'Insufficient fuel':'Sufficient fuel';
+  $('extra').textContent=(extra>0?'+':'')+fmt(extra);
+  $('bingo').textContent=fmt(bingo);
+  $('mins').textContent=mins===null?'n/a':(Math.round(mins*10)/10).toFixed(1);
+  $('l1').textContent=fmt(trip);$('l2').textContent=fmt(alt);$('l3').textContent=fmt(res);$('l4').textContent=fmt(buf);
+  $('land').textContent=fmt(land);
+  var max=Math.max(fob,bingo,1);
+  var cols=['--c1','--c2','--c3','--c4'],vals=[trip,alt,res,buf];
+  $('segs').innerHTML=vals.map(function(v,i){return '<i style="width:'+(Math.max(v,0)/max*100)+'%;background:var('+cols[i]+')"></i>'}).join('');
+  var p=Math.min(fob/max*100,100);
+  var t=$('tick');t.style.left='calc('+p+'% - 1.5px)';
+  t.firstChild.style.transform=p>88?'translateX(-85%)':(p<12?'translateX(-15%)':'translateX(-50%)');
+}
+IDS.forEach(function(i){$(i).addEventListener('input',function(){calc();save()})});
+$('reset').addEventListener('click',function(){IDS.forEach(function(i){$(i).value=DEF[i]});calc();save()});
+$('theme').addEventListener('click',function(){
+  var dark=root.getAttribute('data-theme')==='dark'||(!root.getAttribute('data-theme')&&matchMedia('(prefers-color-scheme: dark)').matches);
+  root.setAttribute('data-theme',dark?'light':'dark')});
+load();calc();
+})();
+</script>
+<script>
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
+</script>
+</body>
+</html>
