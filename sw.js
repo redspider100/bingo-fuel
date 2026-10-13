@@ -1,4 +1,4 @@
-var CACHE='bingo-fuel-v2';
+var CACHE='bingo-fuel-v3';
 var FILES=['./','index.html','manifest.json','Aviation_Fuel_Gauge_Icon.png'];
 self.addEventListener('install',function(e){
   e.waitUntil(caches.open(CACHE).then(function(c){return c.addAll(FILES)}));
