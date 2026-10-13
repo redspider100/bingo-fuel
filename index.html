@@ -54,7 +54,7 @@ h1{font-size:28px;letter-spacing:-.02em;margin:0;font-weight:700}
 .note{color:var(--muted);font-size:12.5px;text-align:center;margin:18px 8px 0}
 </style>
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="apple-touch-icon" href="Aviation_Fuel_Gauge_Icon.png">
 <meta name="theme-color" content="#0b0f17">
 <meta name="apple-mobile-web-app-title" content="Bingo Fuel">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -93,7 +93,7 @@ h1{font-size:28px;letter-spacing:-.02em;margin:0;font-weight:700}
   <section class="card inp">
     <div class="fields">
       <div class="full"><label for="fob">Current fuel on board</label><div class="box"><input id="fob" inputmode="numeric" pattern="[0-9]*" autocomplete="off"><small>lbs</small></div></div>
-      <div class="full"><label for="trip">Trip burn to destination</label><div class="box"><input id="trip" inputmode="numeric" pattern="[0-9]*" autocomplete="off"><small>lbs</small></div></div>
+      <div class="full"><label for="trip">Fuel Burn: Fix to Destination</label><div class="box"><input id="trip" inputmode="numeric" pattern="[0-9]*" autocomplete="off"><small>lbs</small></div></div>
       <div><label for="alt">Alternate</label><div class="box"><input id="alt" inputmode="numeric" pattern="[0-9]*" autocomplete="off"><small>lbs</small></div></div>
       <div><label for="res2">Reserve</label><div class="box"><input id="res2" inputmode="numeric" pattern="[0-9]*" autocomplete="off"><small>lbs</small></div></div>
       <div><label for="buf">Buffer</label><div class="box"><input id="buf" inputmode="numeric" pattern="[0-9]*" autocomplete="off"><small>lbs</small></div></div>
@@ -106,7 +106,6 @@ h1{font-size:28px;letter-spacing:-.02em;margin:0;font-weight:700}
 <script>
 (function(){
 var IDS=['fob','trip','alt','res2','buf','hr'];
-var DEF={fob:4600,trip:877,alt:1100,res2:1400,buf:400,hr:2400};
 var KEY='bingo-fuel-v1';
 var root=document.documentElement;
 function $(id){return document.getElementById(id)}
@@ -114,7 +113,7 @@ function n(v){var x=parseFloat(v);return isFinite(x)?x:0}
 function fmt(x){return Math.round(x).toLocaleString('en-US')}
 function save(){try{var o={};IDS.forEach(function(i){o[i]=$(i).value});localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
 function load(){var o=null;try{o=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
-  IDS.forEach(function(i){$(i).value=(o&&o[i]!==undefined)?o[i]:DEF[i]})}
+  IDS.forEach(function(i){$(i).value=(o&&o[i]!==undefined)?o[i]:''})}
 function calc(){
   var fob=n($('fob').value),trip=n($('trip').value),alt=n($('alt').value),res=n($('res2').value),buf=n($('buf').value),hr=n($('hr').value);
   var land=alt+res+buf,bingo=trip+land,extra=fob-bingo;
@@ -135,7 +134,7 @@ function calc(){
   t.firstChild.style.transform=p>88?'translateX(-85%)':(p<12?'translateX(-15%)':'translateX(-50%)');
 }
 IDS.forEach(function(i){$(i).addEventListener('input',function(){calc();save()})});
-$('reset').addEventListener('click',function(){IDS.forEach(function(i){$(i).value=DEF[i]});calc();save()});
+$('reset').addEventListener('click',function(){IDS.forEach(function(i){$(i).value=''});calc();save()});
 $('theme').addEventListener('click',function(){
   var dark=root.getAttribute('data-theme')==='dark'||(!root.getAttribute('data-theme')&&matchMedia('(prefers-color-scheme: dark)').matches);
   root.setAttribute('data-theme',dark?'light':'dark')});
